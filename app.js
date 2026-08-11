@@ -185,16 +185,20 @@ function loadEventsFromURL() {
 
     }
 
-    catch (error) {
+  catch (error) {
 
-        console.error(
-            "No fue posible interpretar los eventos:",
-            error
-        );
+    console.error(
+        "No fue posible interpretar los eventos:",
+        error
+    );
 
-        events = [];
+    console.warn(
+        "Se cargarán los eventos demo."
+    );
 
-    }
+    events = getDemoEvents();
+
+}
 
 }
 
