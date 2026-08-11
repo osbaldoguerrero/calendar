@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Agenda semanal</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- =========================
+         CABECERA
+    ========================== -->
+
+    <header class="calendar-header">
+
+        <div class="title-area">
+            <div class="calendar-icon">▣</div>
+            <h1>Agenda semanal</h1>
+        </div>
+
+        <div class="navigation">
+
+            <button id="prevWeek" class="nav-button">
+                ‹
+                <span>Semana anterior</span>
+            </button>
+
+            <div id="weekTitle" class="week-title">
+                Semana
+            </div>
+
+            <button id="nextWeek" class="nav-button">
+                <span>Semana siguiente</span>
+                ›
+            </button>
+
+            <button id="todayButton" class="today-button">
+                Hoy
+            </button>
+
+        </div>
+
+        <label class="sunday-toggle">
+
+            <input
+                type="checkbox"
+                id="showSunday"
+            >
+
+            <span class="toggle-switch"></span>
+
+            <span>
+                Mostrar domingo
+            </span>
+
+        </label>
+
+    </header>
+
+
+    <!-- =========================
+         CALENDARIO
+    ========================== -->
+
+    <div class="calendar-wrapper">
+
+        <div id="calendar" class="calendar">
+
+            <!-- JS genera todo aquí -->
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         LEYENDA
+    ========================== -->
+
+    <div class="legend-container">
+
+        <div class="legend-title">
+            Colores por maestro
+        </div>
+
+        <div id="teacherLegend" class="teacher-legend">
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     MODAL / POPUP
+========================== -->
+
+<div
+    id="modalOverlay"
+    class="modal-overlay"
+>
+
+    <div class="event-modal">
+
+        <button
+            id="closeModal"
+            class="close-modal"
+        >
+            ×
+        </button>
+
+        <div class="modal-title-row">
+
+            <div
+                id="modalColor"
+                class="modal-color"
+            ></div>
+
+            <h2 id="modalTag">
+                Clase
+            </h2>
+
+        </div>
+
+        <div class="modal-divider"></div>
+
+        <div class="modal-content">
+
+            <div class="modal-row">
+                <span class="modal-label">
+                    Maestro
+                </span>
+
+                <span id="modalTeacher"></span>
+            </div>
+
+
+            <div class="modal-row">
+                <span class="modal-label">
+                    Salón
+                </span>
+
+                <span id="modalRoom"></span>
+            </div>
+
+
+            <div class="modal-row">
+                <span class="modal-label">
+                    Día
+                </span>
+
+                <span id="modalDay"></span>
+            </div>
+
+
+            <div class="modal-row">
+                <span class="modal-label">
+                    Fecha
+                </span>
+
+                <span id="modalDate"></span>
+            </div>
+
+
+            <div class="modal-row">
+                <span class="modal-label">
+                    Inicio
+                </span>
+
+                <span id="modalStart"></span>
+            </div>
+
+
+            <div class="modal-row">
+                <span class="modal-label">
+                    Fin
+                </span>
+
+                <span id="modalEnd"></span>
+            </div>
+
+
+            <div class="modal-row">
+                <span class="modal-label">
+                    Tipo
+                </span>
+
+                <span id="modalType"></span>
+            </div>
+
+
+            <div class="modal-row">
+                <span class="modal-label">
+                    Tag
+                </span>
+
+                <span id="modalTagDetail"></span>
+            </div>
+
+        </div>
+
+
+        <button
+            id="modalCloseButton"
+            class="modal-close-button"
+        >
+            Cerrar
+        </button>
+
+    </div>
+
+</div>
+
+
+<script src="app.js"></script>
+
+</body>
+</html>
