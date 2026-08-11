@@ -445,7 +445,117 @@ body {
 
     z-index: 5;
 }
+/* =========================
+   FILTRO POR SALÓN
+========================= */
 
+.room-filter-container {
+
+    background: white;
+
+    margin-top: 10px;
+
+    border-radius: 12px;
+
+    border: 1px solid #e5e7eb;
+
+    padding: 12px 16px;
+}
+
+
+.room-filter-header {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 12px;
+
+    margin-bottom: 9px;
+}
+
+
+.room-filter-title {
+
+    font-size: 13px;
+
+    font-weight: 700;
+}
+
+
+.room-filters {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 7px;
+}
+
+
+.room-filter-button {
+
+    border: 1px solid #dfe3e9;
+
+    background: #f8f9fb;
+
+    color: #4b5563;
+
+    padding: 6px 11px;
+
+    border-radius: 999px;
+
+    font-size: 11px;
+
+    cursor: pointer;
+
+    transition:
+        background .15s ease,
+        border-color .15s ease,
+        transform .1s ease;
+}
+
+
+.room-filter-button:hover {
+
+    background: #f0f1f4;
+}
+
+
+.room-filter-button.active {
+
+    background: #eeeaff;
+
+    border-color: #8d78e8;
+
+    color: #5740be;
+
+    font-weight: 650;
+}
+
+
+.room-all-button {
+
+    border: 1px solid #d9dce3;
+
+    background: white;
+
+    padding: 5px 10px;
+
+    border-radius: 7px;
+
+    font-size: 11px;
+
+    cursor: pointer;
+}
+
+
+.room-all-button:hover {
+
+    background: #f5f6f8;
+}
 /* =========================
    FILTRO POR MAESTRO
 ========================= */
