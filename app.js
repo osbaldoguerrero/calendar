@@ -149,6 +149,13 @@ let showSunday = false;
 
 let teacherColorMap = {};
 
+/*
+Maestro actualmente seleccionado
+desde la leyenda.
+*/
+
+let activeTeacher = null;
+
 
 
 /* =========================================================
@@ -983,12 +990,34 @@ function createTimeLines(
             document.createElement("div");
 
 
-        label.className =
-            "hour-label";
+       label.className =
+    "hour-label";
 
 
-        label.style.top =
-            `${top}px`;
+/*
+Evita que la primera y última hora
+se corten en los límites del calendario.
+*/
+
+if (i === 0) {
+
+    label.classList.add(
+        "first-hour"
+    );
+
+}
+
+if (i === totalHours) {
+
+    label.classList.add(
+        "last-hour"
+    );
+
+}
+
+
+label.style.top =
+    `${top}px`;
 
 
         label.textContent =
@@ -1169,6 +1198,9 @@ function createEventElement(
 
     element.className =
         "event";
+
+   element.dataset.teacher =
+    event.teacher || "";
 
 
     /*
