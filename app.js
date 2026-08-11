@@ -156,7 +156,243 @@ desde la leyenda.
 
 let activeTeacher = null;
 
+function base64UrlDecode(value) {
 
+    /*
+    Base64URL:
+    - convierte - en +
+    - convierte _ en /
+    - recupera padding =
+    */
+
+    let base64 =
+        value
+            .replace(/-/g, "+")
+            .replace(/_/g, "/");
+
+
+    while (
+        base64.length % 4
+    ) {
+
+        base64 += "=";
+
+    }
+
+
+    const binary =
+        atob(base64);
+
+
+    const bytes =
+        Uint8Array.from(
+            binary,
+            char =>
+                char.charCodeAt(0)
+        );
+
+
+    return new TextDecoder()
+        .decode(bytes);
+
+}
+
+function decodeCompactPayload(encoded) {
+
+    const json =
+        base64UrlDecode(
+            encoded
+        );
+
+
+    const payload =
+        JSON.parse(
+            json
+        );
+
+
+    const teachers =
+        payload.m || [];
+
+
+    const rooms =
+        payload.s || [];
+
+
+    const compactEvents =
+        payload.e || [];
+
+
+    return compactEvents.map(
+        item => {
+
+            const tag =
+                item[0] || "";
+
+            const dayNumber =
+                Number(
+                    item[1] || 0
+                );
+
+            const compactDate =
+                item[2] || "";
+
+            const startOffset =
+                Number(
+                    item[3] || 0
+                );
+
+            const endOffset =
+                Number(
+                    item[4] || 0
+                );
+
+            const roomIndex =
+                Number(
+                    item[5] || 0
+                );
+
+            const teacherIndex =
+                Number(
+                    item[6] || 0
+                );
+
+
+            const isUnique =
+                dayNumber === 0;
+
+
+            return {
+
+                tag: tag,
+
+                day:
+                    isUnique
+                        ? ""
+                        : dayNumberToKey(
+                            dayNumber
+                        ),
+
+                date:
+                    isUnique
+                        ? expandCompactDate(
+                            compactDate
+                        )
+                        : "",
+
+                start:
+                    offsetToTime(
+                        startOffset
+                    ),
+
+                end:
+                    offsetToTime(
+                        endOffset
+                    ),
+
+                room:
+                    rooms[
+                        roomIndex
+                    ] || "",
+
+                teacher:
+                    teachers[
+                        teacherIndex
+                    ] || "",
+
+                type:
+                    isUnique
+                        ? "unico"
+                        : "recurrente"
+
+            };
+
+        }
+    );
+
+}
+
+function dayNumberToKey(number) {
+
+    const map = {
+
+        1: "lunes",
+        2: "martes",
+        3: "miercoles",
+        4: "jueves",
+        5: "viernes",
+        6: "sabado",
+        7: "domingo"
+
+    };
+
+
+    return map[number] || "";
+
+}
+
+function expandCompactDate(value) {
+
+    if (
+        !value ||
+        String(value).length !== 6
+    ) {
+
+        return "";
+
+    }
+
+
+    const text =
+        String(value);
+
+
+    const year =
+        "20" +
+        text.slice(0, 2);
+
+
+    const month =
+        text.slice(2, 4);
+
+
+    const day =
+        text.slice(4, 6);
+
+
+    return `${year}-${month}-${day}`;
+
+}
+
+function offsetToTime(offset) {
+
+    const totalMinutes =
+        START_HOUR * 60
+        +
+        Number(offset);
+
+
+    const hours =
+        Math.floor(
+            totalMinutes / 60
+        );
+
+
+    const minutes =
+        totalMinutes % 60;
+
+
+    return (
+        String(hours)
+            .padStart(2, "0")
+        +
+        ":"
+        +
+        String(minutes)
+            .padStart(2, "0")
+    );
+
+}
 
 /* =========================================================
    LEER DATOS DESDE URL
@@ -164,51 +400,104 @@ let activeTeacher = null;
 
 function loadEventsFromURL() {
 
-    const params = new URLSearchParams(
-        window.location.search
-    );
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
 
-    const eventsParam = params.get("events");
+    const compactParam =
+        params.get("d");
+
+    const legacyParam =
+        params.get("events");
 
 
     /*
-    Si no existen eventos en la URL,
-    usamos datos demo.
+    =====================================
+    NUEVO FORMATO COMPACTO
+    =====================================
     */
 
-    if (!eventsParam) {
+    if (compactParam) {
 
-        events = getDemoEvents();
+        try {
 
-        return;
+            events =
+                decodeCompactPayload(
+                    compactParam
+                );
+
+            console.log(
+                "Eventos cargados desde formato compacto:",
+                events
+            );
+
+            return;
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Error leyendo payload compacto:",
+                error
+            );
+
+        }
+
     }
 
 
-    try {
+    /*
+    =====================================
+    FORMATO ANTIGUO
+    =====================================
+    */
 
-        const decoded = decodeURIComponent(eventsParam);
+    if (legacyParam) {
 
-        events = JSON.parse(decoded);
+        try {
+
+            events =
+                JSON.parse(
+                    legacyParam
+                );
+
+            console.log(
+                "Eventos cargados desde formato antiguo:",
+                events
+            );
+
+            return;
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Error leyendo formato antiguo:",
+                error
+            );
+
+        }
 
     }
 
-  catch (error) {
 
-    console.error(
-        "No fue posible interpretar los eventos:",
-        error
-    );
+    /*
+    =====================================
+    DEMO
+    =====================================
+    */
 
     console.warn(
-        "Se cargarán los eventos demo."
+        "No se encontraron datos válidos. Se cargarán eventos demo."
     );
 
-    events = getDemoEvents();
+    events =
+        getDemoEvents();
 
 }
-
-}
-
 
 
 /* =========================================================
