@@ -934,9 +934,16 @@ function renderCalendar() {
     );
 
 
-    updateWeekTitle();
+ updateWeekTitle();
 
-    renderTeacherLegend();
+renderTeacherLegend();
+
+/*
+Reaplicamos el filtro después de reconstruir
+el calendario.
+*/
+
+applyTeacherFilter();
 
 }
 
@@ -1345,6 +1352,21 @@ function renderTeacherLegend() {
             item.className =
                 "teacher-legend-item";
 
+           item.dataset.teacher =
+    teacher;
+
+
+item.addEventListener(
+    "click",
+    () => {
+
+        toggleTeacherFilter(
+            teacher
+        );
+
+    }
+);
+
 
             item.innerHTML = `
 
@@ -1372,7 +1394,151 @@ function renderTeacherLegend() {
 
 }
 
+/* =========================================================
+   FILTRO VISUAL POR MAESTRO
+========================================================= */
 
+function toggleTeacherFilter(teacher) {
+
+    /*
+    Si tocamos nuevamente al mismo maestro,
+    quitamos el filtro.
+    */
+
+    if (activeTeacher === teacher) {
+
+        activeTeacher = null;
+
+    }
+
+    else {
+
+        activeTeacher = teacher;
+
+    }
+
+
+    applyTeacherFilter();
+
+}
+
+
+
+function applyTeacherFilter() {
+
+    const eventElements =
+        document.querySelectorAll(
+            ".event"
+        );
+
+
+    const legendItems =
+        document.querySelectorAll(
+            ".teacher-legend-item"
+        );
+
+
+    /*
+    ============================
+    EVENTOS
+    ============================
+    */
+
+    eventElements.forEach(
+        element => {
+
+            element.classList.remove(
+                "teacher-dimmed",
+                "teacher-highlighted"
+            );
+
+
+            /*
+            Si no hay selección,
+            dejamos todos normales.
+            */
+
+            if (!activeTeacher) {
+
+                return;
+
+            }
+
+
+            const teacher =
+                element.dataset.teacher;
+
+
+            if (
+                teacher === activeTeacher
+            ) {
+
+                element.classList.add(
+                    "teacher-highlighted"
+                );
+
+            }
+
+            else {
+
+                element.classList.add(
+                    "teacher-dimmed"
+                );
+
+            }
+
+        }
+    );
+
+
+    /*
+    ============================
+    LEYENDA
+    ============================
+    */
+
+    legendItems.forEach(
+        item => {
+
+            item.classList.remove(
+                "active",
+                "inactive"
+            );
+
+
+            if (!activeTeacher) {
+
+                return;
+
+            }
+
+
+            const teacher =
+                item.dataset.teacher;
+
+
+            if (
+                teacher === activeTeacher
+            ) {
+
+                item.classList.add(
+                    "active"
+                );
+
+            }
+
+            else {
+
+                item.classList.add(
+                    "inactive"
+                );
+
+            }
+
+        }
+    );
+
+}
 
 /* =========================================================
    TÍTULO SEMANA
