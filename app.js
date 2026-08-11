@@ -19,7 +19,7 @@ Esto permite colocar las clases exactamente
 de acuerdo con su hora.
 */
 
-const HOUR_HEIGHT = 70;
+const HOUR_HEIGHT = 45;
 
 const TIME_COLUMN_WIDTH = 65;
 
