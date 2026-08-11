@@ -394,8 +394,29 @@ body {
     font-size: 11px;
 
     color: #666d78;
+
+    white-space: nowrap;
 }
 
+
+/* Primera hora: evita que 07:00 se corte arriba */
+
+.hour-label.first-hour {
+
+    transform: translateY(0);
+
+    top: 6px !important;
+}
+
+
+/* Última hora: evita que 24:00 se corte abajo */
+
+.hour-label.last-hour {
+
+    transform: translateY(-100%);
+
+    margin-top: -5px;
+}
 
 /* =========================
    EVENTOS
