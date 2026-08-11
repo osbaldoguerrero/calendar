@@ -447,6 +447,93 @@ body {
     z-index: 5;
 }
 
+/* =========================
+   FILTRO POR MAESTRO
+========================= */
+
+
+/*
+Clases que NO pertenecen
+al maestro seleccionado
+*/
+
+.event.teacher-dimmed {
+
+    background: #f1f2f4 !important;
+
+    border-color: #d9dde3 !important;
+
+    color: #a0a5ad !important;
+
+    opacity: .72;
+
+    filter: grayscale(1);
+
+    box-shadow: none;
+}
+
+
+/*
+Clase perteneciente al maestro seleccionado
+*/
+
+.event.teacher-highlighted {
+
+    opacity: 1;
+
+    filter: none;
+
+    transform: scale(1.025);
+
+    box-shadow:
+        0 4px 14px rgba(0,0,0,.15);
+
+    z-index: 15;
+}
+
+
+/*
+Elementos de la leyenda clicables
+*/
+
+.teacher-legend-item {
+
+    cursor: pointer;
+
+    padding: 6px 10px;
+
+    border-radius: 8px;
+
+    transition:
+        background .15s ease,
+        transform .15s ease,
+        opacity .15s ease;
+}
+
+
+.teacher-legend-item:hover {
+
+    background: #f5f6f8;
+}
+
+
+.teacher-legend-item.active {
+
+    background: #f1efff;
+
+    box-shadow:
+        inset 0 0 0 1px #d7d0fa;
+
+    font-weight: 650;
+
+    transform: scale(1.03);
+}
+
+
+.teacher-legend-item.inactive {
+
+    opacity: .55;
+}
 
 .event:hover {
 
