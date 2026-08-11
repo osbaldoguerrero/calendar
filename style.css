@@ -1,0 +1,759 @@
+/* =========================
+   CONFIGURACIÓN GENERAL
+========================= */
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: #f6f7fb;
+
+    font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Arial,
+        sans-serif;
+
+    color: #1f2937;
+}
+
+
+/* =========================
+   APP
+========================= */
+
+.app {
+    width: 100%;
+    min-height: 100vh;
+    padding: 18px;
+}
+
+
+/* =========================
+   CABECERA
+========================= */
+
+.calendar-header {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 18px;
+
+    background: white;
+
+    padding: 14px 18px;
+
+    border-radius: 16px 16px 0 0;
+
+    border: 1px solid #e6e9ef;
+}
+
+
+.title-area {
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    white-space: nowrap;
+}
+
+
+.title-area h1 {
+
+    margin: 0;
+
+    font-size: 20px;
+    font-weight: 700;
+}
+
+
+.calendar-icon {
+
+    font-size: 20px;
+
+    color: #7057e8;
+}
+
+
+/* =========================
+   NAVEGACIÓN
+========================= */
+
+.navigation {
+
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+}
+
+
+.nav-button,
+.today-button {
+
+    height: 38px;
+
+    border-radius: 8px;
+
+    border: 1px solid #dde1e8;
+
+    background: white;
+
+    padding: 0 13px;
+
+    font-size: 13px;
+
+    cursor: pointer;
+
+    transition:
+        background .15s ease,
+        transform .1s ease;
+}
+
+
+.nav-button:hover,
+.today-button:hover {
+
+    background: #f5f6f8;
+}
+
+
+.nav-button:active,
+.today-button:active {
+
+    transform: scale(.97);
+}
+
+
+.week-title {
+
+    min-width: 180px;
+
+    text-align: center;
+
+    font-size: 18px;
+    font-weight: 700;
+}
+
+
+/* =========================
+   SWITCH DOMINGO
+========================= */
+
+.sunday-toggle {
+
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    font-size: 13px;
+
+    cursor: pointer;
+
+    white-space: nowrap;
+}
+
+
+.sunday-toggle input {
+
+    display: none;
+}
+
+
+.toggle-switch {
+
+    width: 34px;
+    height: 20px;
+
+    border-radius: 20px;
+
+    background: #d9dce4;
+
+    position: relative;
+
+    transition: .2s;
+}
+
+
+.toggle-switch::after {
+
+    content: "";
+
+    width: 14px;
+    height: 14px;
+
+    position: absolute;
+
+    top: 3px;
+    left: 3px;
+
+    background: white;
+
+    border-radius: 50%;
+
+    transition: .2s;
+
+    box-shadow:
+        0 1px 3px rgba(0,0,0,.2);
+}
+
+
+.sunday-toggle input:checked + .toggle-switch {
+
+    background: #7057e8;
+}
+
+
+.sunday-toggle input:checked + .toggle-switch::after {
+
+    transform: translateX(14px);
+}
+
+
+/* =========================
+   WRAPPER
+========================= */
+
+.calendar-wrapper {
+
+    width: 100%;
+
+    overflow-x: auto;
+
+    background: white;
+}
+
+
+.calendar {
+
+    position: relative;
+
+    min-width: 900px;
+
+    border-left: 1px solid #e5e7eb;
+    border-right: 1px solid #e5e7eb;
+}
+
+
+/* =========================
+   FILA DE DÍAS
+========================= */
+
+.day-header-row {
+
+    display: grid;
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 20;
+
+    background: white;
+
+    border-bottom: 1px solid #e4e7ed;
+}
+
+
+.time-header {
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    border-right: 1px solid #e4e7ed;
+}
+
+
+.day-header {
+
+    text-align: center;
+
+    padding: 12px 5px;
+
+    border-right: 1px solid #e4e7ed;
+}
+
+
+.day-name {
+
+    font-size: 14px;
+    font-weight: 650;
+}
+
+
+.day-date {
+
+    margin-top: 3px;
+
+    font-size: 12px;
+
+    color: #6b7280;
+}
+
+
+.day-header.today {
+
+    background: #f4f1ff;
+}
+
+
+.day-header.today .day-name {
+
+    color: #6650d8;
+}
+
+
+/* =========================
+   CUERPO DEL CALENDARIO
+========================= */
+
+.calendar-body {
+
+    display: grid;
+
+    position: relative;
+}
+
+
+.time-column {
+
+    position: relative;
+
+    border-right: 1px solid #e1e4e9;
+
+    background: white;
+}
+
+
+.day-column {
+
+    position: relative;
+
+    border-right: 1px solid #e4e7ed;
+
+    background: white;
+}
+
+
+/* =========================
+   LINEAS HORARIAS
+========================= */
+
+.hour-line {
+
+    position: absolute;
+
+    left: 0;
+    right: 0;
+
+    border-top: 1px solid #e6e8ed;
+
+    pointer-events: none;
+}
+
+
+.half-hour-line {
+
+    position: absolute;
+
+    left: 0;
+    right: 0;
+
+    border-top: 1px dashed #eef0f4;
+
+    pointer-events: none;
+}
+
+
+.hour-label {
+
+    position: absolute;
+
+    right: 10px;
+
+    transform: translateY(-50%);
+
+    font-size: 11px;
+
+    color: #666d78;
+}
+
+
+/* =========================
+   EVENTOS
+========================= */
+
+.event {
+
+    position: absolute;
+
+    padding: 5px 7px;
+
+    border-radius: 6px;
+
+    border: 1px solid transparent;
+
+    overflow: hidden;
+
+    cursor: pointer;
+
+    font-size: 11px;
+
+    line-height: 1.2;
+
+    transition:
+        transform .12s ease,
+        box-shadow .12s ease;
+
+    z-index: 5;
+}
+
+
+.event:hover {
+
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 4px 10px rgba(0,0,0,.10);
+
+    z-index: 10;
+}
+
+
+.event-tag {
+
+    font-weight: 600;
+
+    word-wrap: break-word;
+}
+
+
+.event-time {
+
+    margin-top: 3px;
+
+    font-size: 9px;
+
+    opacity: .70;
+}
+
+
+/* =========================
+   LEYENDA
+========================= */
+
+.legend-container {
+
+    background: white;
+
+    margin-top: 14px;
+
+    border-radius: 12px;
+
+    border: 1px solid #e5e7eb;
+
+    padding: 14px 18px;
+}
+
+
+.legend-title {
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    margin-bottom: 12px;
+}
+
+
+.teacher-legend {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 12px 24px;
+}
+
+
+.teacher-legend-item {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    font-size: 12px;
+}
+
+
+.legend-dot {
+
+    width: 12px;
+    height: 12px;
+
+    border-radius: 50%;
+
+    flex-shrink: 0;
+}
+
+
+/* =========================
+   MODAL
+========================= */
+
+.modal-overlay {
+
+    position: fixed;
+
+    inset: 0;
+
+    background: rgba(20, 25, 35, .25);
+
+    display: none;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    z-index: 1000;
+
+    backdrop-filter: blur(2px);
+}
+
+
+.modal-overlay.visible {
+
+    display: flex;
+}
+
+
+.event-modal {
+
+    position: relative;
+
+    width: 100%;
+    max-width: 380px;
+
+    background: white;
+
+    border-radius: 15px;
+
+    padding: 22px;
+
+    box-shadow:
+        0 20px 55px rgba(0,0,0,.18);
+}
+
+
+.close-modal {
+
+    position: absolute;
+
+    top: 12px;
+    right: 13px;
+
+    width: 30px;
+    height: 30px;
+
+    border: none;
+
+    background: transparent;
+
+    font-size: 24px;
+
+    color: #777;
+
+    cursor: pointer;
+}
+
+
+.modal-title-row {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding-right: 30px;
+}
+
+
+.modal-title-row h2 {
+
+    margin: 0;
+
+    font-size: 19px;
+}
+
+
+.modal-color {
+
+    width: 14px;
+    height: 14px;
+
+    border-radius: 50%;
+
+    flex-shrink: 0;
+}
+
+
+.modal-divider {
+
+    height: 1px;
+
+    background: #eceef2;
+
+    margin: 17px 0;
+}
+
+
+.modal-content {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 12px;
+}
+
+
+.modal-row {
+
+    display: grid;
+
+    grid-template-columns: 90px 1fr;
+
+    gap: 12px;
+
+    font-size: 13px;
+}
+
+
+.modal-label {
+
+    color: #777d87;
+
+    font-weight: 500;
+}
+
+
+.modal-close-button {
+
+    width: 100%;
+
+    height: 39px;
+
+    margin-top: 20px;
+
+    border-radius: 8px;
+
+    border: 1px solid #d8cffb;
+
+    background: #f6f3ff;
+
+    color: #664fd0;
+
+    cursor: pointer;
+
+    font-weight: 600;
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 900px) {
+
+    .calendar-header {
+
+        flex-wrap: wrap;
+    }
+
+
+    .title-area {
+
+        width: 100%;
+    }
+
+
+    .navigation {
+
+        flex: 1;
+
+        justify-content: center;
+    }
+
+
+    .week-title {
+
+        min-width: 130px;
+
+        font-size: 15px;
+    }
+
+
+    .nav-button span {
+
+        display: none;
+    }
+
+}
+
+
+@media (max-width: 600px) {
+
+    .app {
+
+        padding: 4px;
+    }
+
+
+    .calendar-header {
+
+        border-radius: 10px 10px 0 0;
+
+        padding: 10px;
+    }
+
+
+    .title-area h1 {
+
+        font-size: 16px;
+    }
+
+
+    .week-title {
+
+        font-size: 14px;
+    }
+
+
+    .calendar {
+
+        min-width: 760px;
+    }
+
+}
