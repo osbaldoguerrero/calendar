@@ -677,9 +677,25 @@ Elementos de la leyenda clicables
 
     overflow: hidden;
 
-    text-overflow: clip;
-
     width: 100%;
+
+    font-size: 11px;
+
+    line-height: 1.2;
+}
+
+.event-tag.tag-small {
+
+    font-size: 9.5px;
+}
+
+.event-tag.tag-initial {
+
+    text-align: center;
+
+    font-size: 13px;
+
+    font-weight: 700;
 }
 
 .event-tag.initial-only {
