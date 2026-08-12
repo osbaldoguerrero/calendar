@@ -13,7 +13,7 @@ body {
 }
 
 body {
-    background: #f6f7fb;
+    background: transparent;
 
     font-family:
         Inter,
@@ -27,6 +27,9 @@ body {
     color: #1f2937;
 }
 
+html {
+    background: transparent;
+}
 
 /* =========================
    APP
@@ -35,7 +38,8 @@ body {
 .app {
     width: 100%;
     min-height: 100vh;
-    padding: 18px;
+    padding: 6px;
+    background: transparent;
 }
 
 
@@ -55,9 +59,12 @@ body {
 
     padding: 14px 18px;
 
-    border-radius: 16px 16px 0 0;
+    border-radius: 16px;
 
-    border: 1px solid #e6e9ef;
+    border: none;
+
+box-shadow:
+    0 8px 24px rgba(0,0,0,.06);
 }
 
 
@@ -229,23 +236,28 @@ body {
 ========================= */
 
 .calendar-wrapper {
-
     width: 100%;
 
     overflow-x: auto;
 
     background: white;
+
+    margin-top: 12px;
+
+    border-radius: 16px;
+
+    box-shadow:
+        0 8px 24px rgba(0,0,0,.055);
 }
 
 
 .calendar {
-
     position: relative;
 
     min-width: 900px;
 
-    border-left: 1px solid #e5e7eb;
-    border-right: 1px solid #e5e7eb;
+    border-left: none;
+    border-right: none;
 }
 
 
@@ -450,16 +462,18 @@ body {
 ========================= */
 
 .room-filter-container {
-
     background: white;
 
-    margin-top: 10px;
+    margin-top: 12px;
 
-    border-radius: 12px;
+    border-radius: 16px;
 
-    border: 1px solid #e5e7eb;
+    border: none;
 
     padding: 12px 16px;
+
+    box-shadow:
+        0 8px 24px rgba(0,0,0,.055);
 }
 
 
@@ -697,16 +711,18 @@ Elementos de la leyenda clicables
 ========================= */
 
 .legend-container {
-
     background: white;
 
-    margin-top: 14px;
+    margin-top: 12px;
 
-    border-radius: 12px;
+    border-radius: 16px;
 
-    border: 1px solid #e5e7eb;
+    border: none;
 
     padding: 14px 18px;
+
+    box-shadow:
+        0 8px 24px rgba(0,0,0,.055);
 }
 
 
