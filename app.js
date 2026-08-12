@@ -1722,17 +1722,31 @@ function createEventElement(
     CONTENIDO
     */
 
-    element.innerHTML = `
+    const fullTag =
+    event.tag || "";
 
-        <div class="event-tag">
-            ${escapeHTML(event.tag || "")}
-        </div>
 
-        <div class="event-time">
-            ${event.start}–${event.end}
-        </div>
+const initial =
+    getTagInitial(
+        fullTag
+    );
 
-    `;
+
+element.innerHTML = `
+
+    <div
+        class="event-tag"
+        data-full-tag="${escapeHTML(fullTag)}"
+        data-initial="${escapeHTML(initial)}"
+    >
+        ${escapeHTML(fullTag)}
+    </div>
+
+    <div class="event-time">
+        ${event.start}–${event.end}
+    </div>
+
+`;
 
 
     element.addEventListener(
@@ -1757,6 +1771,104 @@ function createEventElement(
 
 }
 
+/* =========================================================
+   FUNCIÓN QUE OBTIENE LA INICIAL
+========================================================= */
+
+function getTagInitial(tag) {
+
+    const clean =
+        String(tag || "")
+            .trim();
+
+
+    if (!clean) {
+
+        return "";
+
+    }
+
+
+    return clean
+        .charAt(0)
+        .toUpperCase();
+
+}
+
+/* =========================================================
+   DETECTAR SI EL TEXTO CABE
+========================================================= */
+
+function fitEventLabels() {
+
+    const tags =
+        document.querySelectorAll(
+            ".event-tag"
+        );
+
+
+    tags.forEach(tag => {
+
+        const fullTag =
+            tag.dataset.fullTag || "";
+
+        const initial =
+            tag.dataset.initial || "";
+
+
+        /*
+        Primero intentamos mostrar
+        el texto completo.
+        */
+
+        tag.textContent =
+            fullTag;
+
+
+        /*
+        Si el ancho disponible no es suficiente
+        para una sola línea, mostramos inicial.
+        */
+
+        if (
+            tag.scrollWidth >
+            tag.clientWidth
+        ) {
+
+            tag.textContent =
+                initial;
+
+            tag.classList.add(
+                "initial-only"
+            );
+
+        }
+
+        else {
+
+            tag.classList.remove(
+                "initial-only"
+            );
+
+        }
+
+    });
+
+}
+/* =========================================================
+   otra función Ejecutarlo después del render 
+========================================================= */
+function scheduleEventLabelFit() {
+
+    requestAnimationFrame(
+        () => {
+
+            fitEventLabels();
+
+        }
+    );
+
+}
 
 
 /* =========================================================
@@ -2374,3 +2486,12 @@ loadEventsFromURL();
 createTeacherColorMap();
 
 renderCalendar();
+
+window.addEventListener(
+    "resize",
+    () => {
+
+        scheduleEventLabelFit();
+
+    }
+);
