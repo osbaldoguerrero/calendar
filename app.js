@@ -156,7 +156,127 @@ desde la leyenda.
 
 let activeTeacher = null;
 
+let selectedRooms = new Set();
+
+
+function renderRoomFilters() {
+
+    const container =
+        document.getElementById(
+            "roomFilters"
+        );
+
+
+    container.innerHTML = "";
+
+
+    /*
+    Solo obtenemos salones que realmente
+    aparecen en los eventos actuales.
+    */
+
+    const rooms = [
+
+        ...new Set(
+
+            events
+                .map(event => event.room)
+                .filter(Boolean)
+
+        )
+
+    ].sort();
+
+
+    rooms.forEach(room => {
+
+        const button =
+            document.createElement(
+                "button"
+            );
+
+
+        button.className =
+            "room-filter-button";
+
+
+        button.textContent =
+            room;
+
+
+        button.dataset.room =
+            room;
+
+
+        if (
+            selectedRooms.has(room)
+        ) {
+
+            button.classList.add(
+                "active"
+            );
+
+        }
+
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                toggleRoomFilter(
+                    room
+                );
+
+            }
+        );
+
+
+        container.appendChild(
+            button
+        );
+
+    });
+
+}
+
+function toggleRoomFilter(room) {
+
+    /*
+    Si ya está seleccionado,
+    lo quitamos.
+    */
+
+    if (
+        selectedRooms.has(room)
+    ) {
+
+        selectedRooms.delete(room);
+
+    }
+
+    else {
+
+        selectedRooms.add(room);
+
+    }
+
+
+    /*
+    IMPORTANTE:
+    reconstruimos el calendario completo.
+
+    Así los eventos restantes recalculan
+    sus columnas y ocupan todo el espacio.
+    */
+
+    renderCalendar();
+
+}
+
+
+
 function base64UrlDecode(value) {
+
 
     /*
     Base64URL:
@@ -772,12 +892,34 @@ function getEventsForDate(date, dayKey) {
 
     return events.filter(event => {
 
+        /*
+        =================================
+        FILTRO POR SALÓN
+        =================================
+        */
+
+        if (
+            selectedRooms.size > 0 &&
+            !selectedRooms.has(
+                event.room
+            )
+        ) {
+
+            return false;
+
+        }
+
+
         const type =
-            normalizeText(event.type);
+            normalizeText(
+                event.type
+            );
 
 
         /*
+        =================================
         EVENTO ÚNICO
+        =================================
         */
 
         if (
@@ -785,25 +927,34 @@ function getEventsForDate(date, dayKey) {
             type === "único"
         ) {
 
-            return event.date === isoDate;
+            return (
+                event.date
+                ===
+                isoDate
+            );
 
         }
 
 
         /*
+        =================================
         EVENTO RECURRENTE
+        =================================
         */
 
         return (
-            normalizeText(event.day)
+            normalizeText(
+                event.day
+            )
             ===
-            normalizeText(dayKey)
+            normalizeText(
+                dayKey
+            )
         );
 
     });
 
 }
-
 
 
 /* =========================================================
@@ -1225,6 +1376,8 @@ function renderCalendar() {
 
  updateWeekTitle();
 
+   renderRoomFilters();
+
 renderTeacherLegend();
 
 /*
@@ -1233,6 +1386,8 @@ el calendario.
 */
 
 applyTeacherFilter();
+
+scheduleEventLabelFit();
 
 }
 
@@ -1592,6 +1747,8 @@ function createEventElement(
 
         }
     );
+
+   
 
 
     container.appendChild(
@@ -2195,7 +2352,18 @@ document.addEventListener(
     }
 );
 
+document.getElementById(
+    "showAllRooms"
+).addEventListener(
+    "click",
+    () => {
 
+        selectedRooms.clear();
+
+        renderCalendar();
+
+    }
+);
 
 /* =========================================================
    INICIAR
