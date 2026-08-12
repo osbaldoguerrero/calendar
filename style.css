@@ -238,7 +238,7 @@ box-shadow:
 .calendar-wrapper {
     width: 100%;
 
-    overflow-x: auto;
+    overflow: visible;
 
     background: white;
 
@@ -250,9 +250,9 @@ box-shadow:
         0 8px 24px rgba(0,0,0,.055);
 }
 
-
 .calendar {
     position: relative;
+    overflow: visible;
 
     min-width: 900px;
 
