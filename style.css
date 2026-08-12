@@ -659,9 +659,14 @@ Elementos de la leyenda clicables
 
     font-weight: 600;
 
-    word-wrap: break-word;
-}
+    white-space: nowrap;
 
+    overflow: hidden;
+
+    text-overflow: clip;
+
+    width: 100%;
+}
 
 .event-time {
 
