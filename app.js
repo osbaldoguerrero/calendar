@@ -1816,69 +1816,194 @@ function fitEventLabels() {
 
 
         if (!tag) {
-
             return;
-
         }
 
 
         const fullTag =
             tag.dataset.fullTag || "";
 
+
+        const cleanTag =
+            fullTag.trim();
+
+
+        if (!cleanTag) {
+            tag.textContent = "";
+            return;
+        }
+
+
+        const firstWord =
+            cleanTag.split(/\s+/)[0];
+
+
         const initial =
-            tag.dataset.initial || "";
+            cleanTag.charAt(0).toUpperCase();
 
 
-        tag.textContent =
-            fullTag;
+        /*
+        Reset total antes de medir
+        */
 
-
-        event.classList.remove(
-            "compact-event"
+        tag.classList.remove(
+            "tag-small",
+            "tag-initial"
         );
 
+        tag.style.fontSize = "";
+
+        tag.textContent =
+            cleanTag;
+
+
+        /*
+        =================================
+        1. CABE TODO A TAMAÑO NORMAL
+        =================================
+        */
 
         if (
-            tag.scrollWidth >
+            tag.scrollWidth <=
             tag.clientWidth
         ) {
 
-            tag.textContent =
-                initial;
+            return;
 
-            tag.classList.add(
-                "initial-only"
-            );
+        }
 
+
+        /*
+        =================================
+        2. PROBAR TAMAÑO MÁS PEQUEÑO
+        =================================
+        */
+
+        tag.classList.add(
+            "tag-small"
+        );
+
+
+        tag.textContent =
+            cleanTag;
+
+
+        if (
+            tag.scrollWidth <=
+            tag.clientWidth
+        ) {
+
+            return;
+
+        }
+
+
+        /*
+        =================================
+        3. ¿CABE AL MENOS LA PRIMERA PALABRA?
+        =================================
+        */
+
+        tag.textContent =
+            firstWord;
+
+
+        const firstWordFits =
+            tag.scrollWidth <=
+            tag.clientWidth;
+
+
+        if (firstWordFits) {
 
             /*
-            Si es extremadamente angosto,
-            quitamos también la hora interna.
+            Intentamos meter la mayor cantidad
+            posible de caracteres + ...
             */
 
-            if (
-                event.clientWidth < 45
-            ) {
-
-                event.classList.add(
-                    "compact-event"
+            const truncated =
+                truncateTextToWidth(
+                    tag,
+                    cleanTag
                 );
 
-            }
+
+            tag.textContent =
+                truncated;
+
+
+            return;
 
         }
 
-        else {
 
-            tag.classList.remove(
-                "initial-only"
-            );
+        /*
+        =================================
+        4. NI LA PRIMERA PALABRA CABE
+        → SOLO INICIAL
+        =================================
+        */
 
-        }
+        tag.classList.add(
+            "tag-initial"
+        );
+
+
+        tag.textContent =
+            initial;
 
     });
 
 }
+
+function truncateTextToWidth(
+    element,
+    text
+) {
+
+    const ellipsis = "...";
+
+
+    /*
+    Probamos desde el texto completo
+    hacia atrás hasta encontrar
+    lo máximo que cabe.
+    */
+
+    for (
+        let length = text.length;
+        length > 0;
+        length--
+    ) {
+
+        const candidate =
+            text.slice(
+                0,
+                length
+            ).trimEnd()
+            +
+            ellipsis;
+
+
+        element.textContent =
+            candidate;
+
+
+        if (
+            element.scrollWidth <=
+            element.clientWidth
+        ) {
+
+            return candidate;
+
+        }
+
+    }
+
+
+    return text.charAt(0);
+
+}
+
 /* =========================================================
    otra función Ejecutarlo después del render 
 ========================================================= */
