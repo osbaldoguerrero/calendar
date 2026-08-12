@@ -1801,13 +1801,26 @@ function getTagInitial(tag) {
 
 function fitEventLabels() {
 
-    const tags =
+    const events =
         document.querySelectorAll(
-            ".event-tag"
+            ".event"
         );
 
 
-    tags.forEach(tag => {
+    events.forEach(event => {
+
+        const tag =
+            event.querySelector(
+                ".event-tag"
+            );
+
+
+        if (!tag) {
+
+            return;
+
+        }
+
 
         const fullTag =
             tag.dataset.fullTag || "";
@@ -1816,19 +1829,14 @@ function fitEventLabels() {
             tag.dataset.initial || "";
 
 
-        /*
-        Primero intentamos mostrar
-        el texto completo.
-        */
-
         tag.textContent =
             fullTag;
 
 
-        /*
-        Si el ancho disponible no es suficiente
-        para una sola línea, mostramos inicial.
-        */
+        event.classList.remove(
+            "compact-event"
+        );
+
 
         if (
             tag.scrollWidth >
@@ -1841,6 +1849,22 @@ function fitEventLabels() {
             tag.classList.add(
                 "initial-only"
             );
+
+
+            /*
+            Si es extremadamente angosto,
+            quitamos también la hora interna.
+            */
+
+            if (
+                event.clientWidth < 45
+            ) {
+
+                event.classList.add(
+                    "compact-event"
+                );
+
+            }
 
         }
 
