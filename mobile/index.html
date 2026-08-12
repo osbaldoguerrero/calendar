@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+    >
+
+    <title>Mi agenda</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+<body>
+
+
+<div class="app">
+
+
+    <!-- =========================
+         CABECERA
+    ========================== -->
+
+    <header class="top-header">
+
+        <button
+            id="prevWeek"
+            class="week-button"
+            aria-label="Semana anterior"
+        >
+            ‹
+        </button>
+
+
+        <div class="week-info">
+
+            <div
+                id="monthTitle"
+                class="month-title"
+            >
+                Agosto
+            </div>
+
+            <div
+                id="weekSubtitle"
+                class="week-subtitle"
+            >
+                Semana
+            </div>
+
+        </div>
+
+
+        <button
+            id="nextWeek"
+            class="week-button"
+            aria-label="Semana siguiente"
+        >
+            ›
+        </button>
+
+    </header>
+
+
+
+    <!-- =========================
+         BOTÓN HOY
+    ========================== -->
+
+    <div class="today-row">
+
+        <button
+            id="todayButton"
+            class="today-button"
+        >
+            Hoy
+        </button>
+
+    </div>
+
+
+
+    <!-- =========================
+         CALENDARIO
+    ========================== -->
+
+    <div class="calendar-card">
+
+        <div
+            id="calendar"
+            class="calendar"
+        >
+        </div>
+
+    </div>
+
+
+</div>
+
+
+
+<!-- =========================
+     POPUP
+========================== -->
+
+<div
+    id="eventOverlay"
+    class="event-overlay"
+>
+
+    <div class="event-popup">
+
+        <button
+            id="closePopup"
+            class="close-popup"
+        >
+            ×
+        </button>
+
+
+        <div
+            id="popupTag"
+            class="popup-tag"
+        >
+            Evento
+        </div>
+
+
+        <div class="popup-divider"></div>
+
+
+        <div class="popup-row">
+
+            <span>
+                Salón
+            </span>
+
+            <strong id="popupRoom">
+            </strong>
+
+        </div>
+
+
+        <div class="popup-row">
+
+            <span>
+                Día
+            </span>
+
+            <strong id="popupDate">
+            </strong>
+
+        </div>
+
+
+        <div class="popup-row">
+
+            <span>
+                Horario
+            </span>
+
+            <strong id="popupTime">
+            </strong>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+
+<script src="app.js"></script>
+
+
+</body>
+
+</html>
