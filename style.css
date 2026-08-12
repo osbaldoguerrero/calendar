@@ -668,6 +668,20 @@ Elementos de la leyenda clicables
     width: 100%;
 }
 
+.event-tag.initial-only {
+
+    text-align: center;
+
+    font-size: 13px;
+
+    font-weight: 700;
+}
+
+.event.compact-event .event-time {
+
+    display: none;
+}
+
 .event-time {
 
     margin-top: 3px;
