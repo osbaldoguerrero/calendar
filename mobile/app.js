@@ -198,21 +198,14 @@ function base64UrlDecode(value) {
 /* =========================================================
    DECODIFICAR PAYLOAD
 ========================================================= */
-
-function decodeCompactPayload(
-    encoded
-) {
+function decodeCompactPayload(encoded) {
 
     const json =
-        base64UrlDecode(
-            encoded
-        );
+        base64UrlDecode(encoded);
 
 
     const payload =
-        JSON.parse(
-            json
-        );
+        JSON.parse(json);
 
 
     rooms =
@@ -227,97 +220,107 @@ function decodeCompactPayload(
         item => {
 
             /*
-            =================================
-            EVENTO ÚNICO
+            FORMATO ÚNICO PARA TODOS LOS EVENTOS
 
-            [TAG,0,DATE,START,END,ROOM]
-            =================================
+            [
+                TAG,
+                DAY,
+                DATE,
+                START,
+                END,
+                ROOM
+            ]
+
+            DAY:
+            0 = evento único
+            1 = lunes
+            2 = martes
+            3 = miércoles
+            4 = jueves
+            5 = viernes
+            6 = sábado
+            7 = domingo
             */
 
-            if (
-                Number(item[1]) === 0
-            ) {
-
-                return {
-
-                    tag:
-                        item[0] || "",
-
-                    day:
-                        "",
-
-                    date:
-                        expandCompactDate(
-                            item[2]
-                        ),
-
-                    start:
-                        offsetToTime(
-                            item[3]
-                        ),
-
-                    end:
-                        offsetToTime(
-                            item[4]
-                        ),
-
-                    room:
-                        rooms[
-                            Number(
-                                item[5]
-                            )
-                        ] || "",
-
-                    type:
-                        "unico"
-
-                };
-
-            }
+            const tag =
+                item[0] || "";
 
 
-            /*
-            =================================
-            EVENTO RECURRENTE
+            const dayNumber =
+                Number(
+                    item[1] || 0
+                );
 
-            [TAG,DAY,START,END,ROOM]
-            =================================
-            */
+
+            const compactDate =
+                item[2] || "";
+
+
+            const startOffset =
+                Number(
+                    item[3] || 0
+                );
+
+
+            const endOffset =
+                Number(
+                    item[4] || 0
+                );
+
+
+            const roomIndex =
+                Number(
+                    item[5] || 0
+                );
+
+
+            const isUnique =
+                dayNumber === 0;
+
 
             return {
 
-                tag:
-                    item[0] || "",
+                tag: tag,
+
 
                 day:
-                    dayNumberToKey(
-                        Number(
-                            item[1]
-                        )
-                    ),
+                    isUnique
+                        ? ""
+                        : dayNumberToKey(
+                            dayNumber
+                        ),
+
 
                 date:
-                    "",
+                    isUnique
+                        ? expandCompactDate(
+                            compactDate
+                        )
+                        : "",
+
 
                 start:
                     offsetToTime(
-                        item[2]
+                        startOffset
                     ),
+
 
                 end:
                     offsetToTime(
-                        item[3]
+                        endOffset
                     ),
+
 
                 room:
                     rooms[
-                        Number(
-                            item[4]
-                        )
+                        roomIndex
                     ] || "",
 
+
                 type:
-                    "recurrente"
+                    isUnique
+                        ? "unico"
+                        : "recurrente"
 
             };
 
@@ -325,8 +328,6 @@ function decodeCompactPayload(
     );
 
 }
-
-
 
 /* =========================================================
    LEER URL
