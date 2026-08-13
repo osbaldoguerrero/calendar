@@ -330,6 +330,164 @@ function decodeCompactPayload(encoded) {
 }
 
 /* =========================================================
+ AJUSTE AUTOMÁTICO DE LA ALTURA
+========================================================= */
+
+function fitMobileEventText() {
+
+    const eventElements =
+        document.querySelectorAll(
+            ".event"
+        );
+
+
+    eventElements.forEach(
+        element => {
+
+            const tag =
+                element.querySelector(
+                    ".event-tag"
+                );
+
+
+            const room =
+                element.querySelector(
+                    ".event-room"
+                );
+
+
+            if (!tag) {
+                return;
+            }
+
+
+            /*
+            Altura interior total del evento.
+            */
+
+            const eventStyle =
+                getComputedStyle(
+                    element
+                );
+
+
+            const paddingTop =
+                parseFloat(
+                    eventStyle.paddingTop
+                ) || 0;
+
+
+            const paddingBottom =
+                parseFloat(
+                    eventStyle.paddingBottom
+                ) || 0;
+
+
+            const innerHeight =
+                element.clientHeight
+                -
+                paddingTop
+                -
+                paddingBottom;
+
+
+            /*
+            Espacio reservado para salón.
+            */
+
+            let roomHeight = 0;
+
+
+            if (room) {
+
+                const roomStyle =
+                    getComputedStyle(
+                        room
+                    );
+
+
+                roomHeight =
+                    room.offsetHeight
+                    +
+                    (
+                        parseFloat(
+                            roomStyle.marginTop
+                        ) || 0
+                    );
+
+            }
+
+
+            /*
+            Altura disponible para el Tag.
+            */
+
+            const availableHeight =
+                Math.max(
+                    10,
+                    innerHeight
+                    -
+                    roomHeight
+                );
+
+
+            /*
+            Calculamos aproximadamente
+            cuántas líneas caben.
+            */
+
+            const tagStyle =
+                getComputedStyle(
+                    tag
+                );
+
+
+            const fontSize =
+                parseFloat(
+                    tagStyle.fontSize
+                ) || 9;
+
+
+            let lineHeight =
+                parseFloat(
+                    tagStyle.lineHeight
+                );
+
+
+            if (
+                Number.isNaN(
+                    lineHeight
+                )
+            ) {
+
+                lineHeight =
+                    fontSize * 1.15;
+
+            }
+
+
+            const lines =
+                Math.max(
+                    1,
+                    Math.floor(
+                        availableHeight
+                        /
+                        lineHeight
+                    )
+                );
+
+
+            tag.style.webkitLineClamp =
+                String(lines);
+
+        }
+    );
+
+}
+
+
+
+/* =========================================================
    LEER URL
 ========================================================= */
 
@@ -1130,7 +1288,16 @@ function renderCalendar() {
     );
 
 
-    updateWeekTitle();
+  updateWeekTitle();
+
+
+requestAnimationFrame(
+    () => {
+
+        fitMobileEventText();
+
+    }
+);
 
 }
 
@@ -1826,7 +1993,20 @@ document.getElementById(
     }
 );
 
+window.addEventListener(
+    "resize",
+    () => {
 
+        requestAnimationFrame(
+            () => {
+
+                fitMobileEventText();
+
+            }
+        );
+
+    }
+);
 
 /* =========================================================
    INICIO
