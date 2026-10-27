@@ -1025,3 +1025,11 @@ Elementos de la leyenda clicables
     }
 
 }
+
+/* Unassigned room: subtle distinction without changing existing visual style. */
+.room-filter-button.room-unassigned {
+    border-style: dashed;
+}
+.room-filter-button.room-unassigned.active {
+    border-style: solid;
+}

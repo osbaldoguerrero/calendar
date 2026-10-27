@@ -160,83 +160,29 @@ let selectedRooms = new Set();
 
 
 function renderRoomFilters() {
-
-    const container =
-        document.getElementById(
-            "roomFilters"
-        );
-
-
+    const container = document.getElementById("roomFilters");
     container.innerHTML = "";
 
-
-    /*
-    Solo obtenemos salones que realmente
-    aparecen en los eventos actuales.
-    */
-
-    const rooms = [
-
-        ...new Set(
-
-            events
-                .map(event => event.room)
-                .filter(Boolean)
-
-        )
-
-    ].sort();
-
+    // Incluye "Sin salón asignado" si alguna clase visible lo necesita.
+    const rooms = [...new Set(events.map(e => e.room || UNASSIGNED_ROOM))]
+        .sort((a, b) => {
+            if (a === UNASSIGNED_ROOM) return 1;
+            if (b === UNASSIGNED_ROOM) return -1;
+            return a.localeCompare(b, "es");
+        });
 
     rooms.forEach(room => {
-
-        const button =
-            document.createElement(
-                "button"
-            );
-
-
-        button.className =
-            "room-filter-button";
-
-
-        button.textContent =
-            room;
-
-
-        button.dataset.room =
-            room;
-
-
-        if (
-            selectedRooms.has(room)
-        ) {
-
-            button.classList.add(
-                "active"
-            );
-
-        }
-
-
-        button.addEventListener(
-            "click",
-            () => {
-
-                toggleRoomFilter(
-                    room
-                );
-
-            }
-        );
-
-
-        container.appendChild(
-            button
-        );
-
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "room-filter-button";
+        button.textContent = room;
+        button.dataset.room = room;
+        button.setAttribute("aria-pressed", String(selectedRooms.has(room)));
+        if (selectedRooms.has(room)) button.classList.add("active");
+        if (room === UNASSIGNED_ROOM) button.classList.add("room-unassigned");
+        button.addEventListener("click", () => toggleRoomFilter(room));
+        container.appendChild(button);
     });
-
 }
 
 function toggleRoomFilter(room) {
@@ -274,6 +220,185 @@ function toggleRoomFilter(room) {
 }
 
 
+
+/* =========================================================
+   DATOS FALTANTES Y VALIDACIÓN SEGURA
+========================================================= */
+
+const UNASSIGNED_ROOM = "Sin salón asignado";
+const UNASSIGNED_TEACHER = "Sin maestro asignado";
+const UNTITLED_EVENT = "Sin título";
+
+function safeText(value) {
+    return value == null ? "" : String(value).trim();
+}
+
+/* No confundir un índice vacío con el índice válido 0. */
+function getCatalogEntry(catalog, index, fallback) {
+    if (index === null || index === undefined || safeText(index) === "") {
+        return fallback;
+    }
+    const n = Number(index);
+    if (!Number.isInteger(n) || n < 0 || n >= catalog.length) {
+        return fallback;
+    }
+    return safeText(catalog[n]) || fallback;
+}
+
+/* Offset = minutos desde las 07:00; 0 sí es un valor válido. */
+function safeOffset(value) {
+    if (value === null || value === undefined || safeText(value) === "") {
+        return null;
+    }
+    const n = Number(value);
+    return Number.isInteger(n) && n >= 0 &&
+        n <= (END_HOUR - START_HOUR) * 60 ? n : null;
+}
+
+function safeDayNumber(value) {
+    if (value === null || value === undefined || safeText(value) === "") {
+        return null;
+    }
+    const n = Number(value);
+    return Number.isInteger(n) && n >= 0 && n <= 7 ? n : null;
+}
+
+function validISODate(value) {
+    const date = safeText(value);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
+    const [year, month, day] = date.split("-").map(Number);
+    const parsed = new Date(Date.UTC(year, month - 1, day));
+    return parsed.getUTCFullYear() === year &&
+        parsed.getUTCMonth() === month - 1 && parsed.getUTCDate() === day;
+}
+
+function parseClock(value) {
+    const valueText = safeText(value);
+    const match = /^(\d{1,2}):([0-5]\d)$/.exec(valueText);
+    if (!match) return null;
+    const hours = Number(match[1]);
+    const minutes = Number(match[2]);
+    if (hours > 24 || (hours === 24 && minutes !== 0)) return null;
+    return hours * 60 + minutes;
+}
+
+/*
+  Repara SOLO las posiciones numéricas vacías del JSON generado
+  por Glide, por ejemplo:  ["Piano",1,"",600,660,,0]
+  Se convierte a: ["Piano",1,"",600,660,null,0]
+  Nunca toca comas contenidas dentro de cadenas de texto.
+*/
+function repairEmptyJSONSlots(source) {
+    let output = "";
+    let inString = false;
+    let escaped = false;
+    const stack = [];
+
+    for (let i = 0; i < source.length; i++) {
+        const c = source[i];
+        if (inString) {
+            output += c;
+            if (escaped) escaped = false;
+            else if (c === "\\") escaped = true;
+            else if (c === '"') inString = false;
+            continue;
+        }
+        if (c === '"') {
+            inString = true;
+            output += c;
+            continue;
+        }
+        if (c === "[") {
+            stack.push("array");
+            output += c;
+            let j = i + 1;
+            while (/\s/.test(source[j] || "")) j++;
+            if (source[j] === ",") output += "null";
+            continue;
+        }
+        if (c === "{") {
+            stack.push("object");
+            output += c;
+            continue;
+        }
+        if (c === "]" || c === "}") {
+            stack.pop();
+            output += c;
+            continue;
+        }
+        if (c === "," && stack[stack.length - 1] === "array") {
+            output += c;
+            let j = i + 1;
+            while (/\s/.test(source[j] || "")) j++;
+            if (source[j] === "," || source[j] === "]") output += "null";
+            continue;
+        }
+        output += c;
+    }
+    return output;
+}
+
+function parseCalendarJSON(json) {
+    try {
+        return JSON.parse(json);
+    } catch (error) {
+        const repaired = repairEmptyJSONSlots(json);
+        if (repaired === json) throw error;
+        const value = JSON.parse(repaired);
+        console.warn("Agenda: se corrigieron campos vacíos del JSON de Glide.");
+        return value;
+    }
+}
+
+/* Valida un evento completo antes de que pueda entrar en el render. */
+function normalizeCalendarEvent(event) {
+    if (!event || typeof event !== "object" || Array.isArray(event)) return null;
+
+    const startMinutes = parseClock(event.start);
+    const endMinutes = parseClock(event.end);
+    if (startMinutes === null || endMinutes === null ||
+        startMinutes >= endMinutes ||
+        startMinutes < START_HOUR * 60 || endMinutes > END_HOUR * 60) {
+        return null;
+    }
+
+    const typeText = normalizeText(event.type);
+    const isUnique = typeText === "unico" ||
+        (!typeText && safeText(event.date) !== "");
+    const day = normalizeText(event.day);
+    const date = safeText(event.date);
+
+    if (isUnique) {
+        if (!validISODate(date)) return null;
+    } else if (!DAYS.some(item => item.key === day)) {
+        return null;
+    }
+
+    return {
+        tag: safeText(event.tag) || UNTITLED_EVENT,
+        day: isUnique ? "" : day,
+        date: isUnique ? date : "",
+        start: offsetToTime(startMinutes - START_HOUR * 60),
+        end: offsetToTime(endMinutes - START_HOUR * 60),
+        room: safeText(event.room) || UNASSIGNED_ROOM,
+        teacher: safeText(event.teacher) || UNASSIGNED_TEACHER,
+        type: isUnique ? "unico" : "recurrente"
+    };
+}
+
+function keepValidEvents(rawEvents) {
+    if (!Array.isArray(rawEvents)) {
+        console.warn("Agenda: la lista de eventos no es un arreglo.");
+        return [];
+    }
+    const result = [];
+    rawEvents.forEach((raw, i) => {
+        const event = normalizeCalendarEvent(raw);
+        if (event) result.push(event);
+        else console.warn(`Agenda: se omitió el evento ${i + 1} por fecha, día u horario incompletos/inválidos.`, raw);
+    });
+    return result;
+}
 
 function base64UrlDecode(value) {
 
@@ -318,118 +443,51 @@ function base64UrlDecode(value) {
 }
 
 function decodeCompactPayload(encoded) {
+    const json = base64UrlDecode(encoded);
+    const payload = parseCalendarJSON(json);
+    if (!payload || typeof payload !== "object") {
+        throw new Error("Formato de agenda no válido.");
+    }
 
-    const json =
-        base64UrlDecode(
-            encoded
-        );
+    const teachers = Array.isArray(payload.m) ? payload.m : [];
+    const rooms = Array.isArray(payload.s) ? payload.s : [];
+    const compactEvents = Array.isArray(payload.e) ? payload.e : [];
 
-
-    const payload =
-        JSON.parse(
-            json
-        );
-
-
-    const teachers =
-        payload.m || [];
-
-
-    const rooms =
-        payload.s || [];
-
-
-    const compactEvents =
-        payload.e || [];
-
-
-    return compactEvents.map(
-        item => {
-
-            const tag =
-                item[0] || "";
-
-            const dayNumber =
-                Number(
-                    item[1] || 0
-                );
-
-            const compactDate =
-                item[2] || "";
-
-            const startOffset =
-                Number(
-                    item[3] || 0
-                );
-
-            const endOffset =
-                Number(
-                    item[4] || 0
-                );
-
-            const roomIndex =
-                Number(
-                    item[5] || 0
-                );
-
-            const teacherIndex =
-                Number(
-                    item[6] || 0
-                );
-
-
-            const isUnique =
-                dayNumber === 0;
-
-
-            return {
-
-                tag: tag,
-
-                day:
-                    isUnique
-                        ? ""
-                        : dayNumberToKey(
-                            dayNumber
-                        ),
-
-                date:
-                    isUnique
-                        ? expandCompactDate(
-                            compactDate
-                        )
-                        : "",
-
-                start:
-                    offsetToTime(
-                        startOffset
-                    ),
-
-                end:
-                    offsetToTime(
-                        endOffset
-                    ),
-
-                room:
-                    rooms[
-                        roomIndex
-                    ] || "",
-
-                teacher:
-                    teachers[
-                        teacherIndex
-                    ] || "",
-
-                type:
-                    isUnique
-                        ? "unico"
-                        : "recurrente"
-
-            };
-
+    const expanded = compactEvents.map((item, index) => {
+        if (!Array.isArray(item)) {
+            console.warn(`Agenda: evento compacto ${index + 1} inválido.`, item);
+            return null;
         }
-    );
 
+        // [TAG, DAY, DATE, START, END, ROOM, TEACHER]
+        // Los índices 0 son válidos; null es dato no asignado.
+        const dayNumber = safeDayNumber(item[1]);
+        const startOffset = safeOffset(item[3]);
+        const endOffset = safeOffset(item[4]);
+
+        // Ninguna clase incompleta puede generar horas inventadas.
+        if (dayNumber === null || startOffset === null ||
+            endOffset === null || endOffset <= startOffset) {
+            return null;
+        }
+
+        const isUnique = dayNumber === 0;
+        const date = isUnique ? expandCompactDate(item[2]) : "";
+        if (isUnique && !validISODate(date)) return null;
+
+        return {
+            tag: safeText(item[0]) || UNTITLED_EVENT,
+            day: isUnique ? "" : dayNumberToKey(dayNumber),
+            date,
+            start: offsetToTime(startOffset),
+            end: offsetToTime(endOffset),
+            room: getCatalogEntry(rooms, item[5], UNASSIGNED_ROOM),
+            teacher: getCatalogEntry(teachers, item[6], UNASSIGNED_TEACHER),
+            type: isUnique ? "unico" : "recurrente"
+        };
+    });
+
+    return keepValidEvents(expanded);
 }
 
 function dayNumberToKey(number) {
@@ -519,110 +577,34 @@ function offsetToTime(offset) {
 ========================================================= */
 
 function loadEventsFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    const compactParam = params.get("d");
+    const legacyParam = params.get("events");
 
-    const params =
-        new URLSearchParams(
-            window.location.search
-        );
-
-    const compactParam =
-        params.get("d");
-
-    const legacyParam =
-        params.get("events");
-
-
-    /*
-    =====================================
-    NUEVO FORMATO COMPACTO
-    =====================================
-    */
-
-    if (compactParam) {
-
+    if (compactParam !== null && compactParam !== "") {
         try {
-
-            events =
-                decodeCompactPayload(
-                    compactParam
-                );
-
-            console.log(
-                "Eventos cargados desde formato compacto:",
-                events
-            );
-
-            return;
-
+            events = decodeCompactPayload(compactParam);
+            console.info(`Agenda: ${events.length} eventos válidos cargados.`);
+        } catch (error) {
+            console.error("Agenda: no se pudo interpretar el payload compacto.", error);
+            events = []; // No mostramos eventos demo como si fueran horarios reales.
         }
-
-        catch (error) {
-
-            console.error(
-                "Error leyendo payload compacto:",
-                error
-            );
-
-        }
-
+        return;
     }
 
-
-    /*
-    =====================================
-    FORMATO ANTIGUO
-    =====================================
-    */
-
-    if (legacyParam) {
-
+    if (legacyParam !== null && legacyParam !== "") {
         try {
-
-            events =
-                JSON.parse(
-                    legacyParam
-                );
-
-            console.log(
-                "Eventos cargados desde formato antiguo:",
-                events
-            );
-
-            return;
-
+            events = keepValidEvents(parseCalendarJSON(legacyParam));
+        } catch (error) {
+            console.error("Agenda: JSON tradicional inválido.", error);
+            events = [];
         }
-
-        catch (error) {
-
-            console.error(
-                "Error leyendo formato antiguo:",
-                error
-            );
-
-        }
-
+        return;
     }
 
-
-    /*
-    =====================================
-    DEMO
-    =====================================
-    */
-
-    console.warn(
-        "No se encontraron datos válidos. Se cargarán eventos demo."
-    );
-
-    events =
-        getDemoEvents();
-
+    // Conservamos los datos demo SOLO para abrir el calendario sin ?d ni ?events.
+    events = keepValidEvents(getDemoEvents());
 }
-
-
-/* =========================================================
-   EVENTOS DEMO
-========================================================= */
 
 function getDemoEvents() {
 
@@ -827,35 +809,21 @@ function timeToMinutes(time) {
 ========================================================= */
 
 function createTeacherColorMap() {
-
     teacherColorMap = {};
-
-    const teachers = [
-
-        ...new Set(
-
-            events
-                .map(event => event.teacher)
-                .filter(Boolean)
-
-        )
-
-    ].sort();
-
-
-    teachers.forEach(
-        (teacher, index) => {
-
-            teacherColorMap[teacher] =
-                TEACHER_COLORS[
-                    index % TEACHER_COLORS.length
-                ];
-
+    const teachers = [...new Set(events.map(event => event.teacher).filter(Boolean))]
+        .sort((a, b) => a.localeCompare(b, "es"));
+    let colorIndex = 0;
+    teachers.forEach(teacher => {
+        if (teacher === UNASSIGNED_TEACHER) {
+            teacherColorMap[teacher] = {
+                background: "#ECEFF3", border: "#ADB5BD", text: "#495057"
+            };
+        } else {
+            teacherColorMap[teacher] = TEACHER_COLORS[colorIndex % TEACHER_COLORS.length];
+            colorIndex++;
         }
-    );
-
+    });
 }
-
 
 function getTeacherColor(teacher) {
 
